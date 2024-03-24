@@ -8,9 +8,9 @@ import { MongooseModule } from '@nestjs/mongoose';
   imports: [
     //ConfigModule.forRoot(),
     MongooseModule.forRoot('mongodb://0.0.0.0:27017/todo'),
-    TodosModule
+    TodosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

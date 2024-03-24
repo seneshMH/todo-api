@@ -9,7 +9,7 @@ import { Model } from 'mongoose';
 export class TodosService {
   private logger = new Logger(TodosService.name);
 
-  constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) { }
+  constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) {}
 
   async create(createTodoDto: CreateTodoDto): Promise<Todo> {
     const createdTodo = new this.todoModel(createTodoDto);

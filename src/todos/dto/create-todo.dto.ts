@@ -1,8 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTodoDto {
-    @ApiProperty()
-    readonly title: string;
-    @ApiProperty()
-    readonly body: string;
+  @ApiProperty()
+  readonly title: string;
+  @ApiProperty()
+  readonly body: string;
 }
