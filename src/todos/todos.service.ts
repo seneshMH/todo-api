@@ -1,26 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Todo } from './schema/todo.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class TodosService {
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+  private logger = new Logger(TodosService.name);
+
+  constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) { }
+
+  async create(createTodoDto: CreateTodoDto): Promise<Todo> {
+    const createdTodo = new this.todoModel(createTodoDto);
+    this.logger.log(`create todo with title: ${createTodoDto.title}`);
+    return createdTodo.save();
   }
 
-  findAll() {
-    return `This action returns all todos`;
+  async findAll(): Promise<Todo[]> {
+    this.logger.log(`find all todos`);
+    return this.todoModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
+  async findOne(id: string): Promise<Todo> {
+    this.logger.log(`find todo with id: ${id}`);
+    return this.todoModel.findOne({ _id: id }).exec();
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  async update(id: string, updateTodoDto: UpdateTodoDto) {
+    this.todoModel.updateOne({ _id: id }, updateTodoDto).exec();
+    this.logger.log(`Updated todo with id: ${id}`);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async remove(id: string) {
+    this.todoModel.deleteOne({ _id: id }).exec();
+    this.logger.log(`delete todo with id: ${id}`);
   }
 }
