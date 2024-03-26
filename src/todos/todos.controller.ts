@@ -19,6 +19,7 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Response } from 'express';
 import { ApiQuery } from '@nestjs/swagger';
+import { Types } from 'mongoose';
 
 @Controller('todos')
 export class TodosController {
@@ -37,7 +38,10 @@ export class TodosController {
       const todos = await this.todosService.findAll(limit, skip);
       res.status(HttpStatus.OK).send({ success: true, message: 'Todos found', data: todos });
     } catch (error) {
-      throw new NotFoundException('Todos not found');
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
+      throw new NotFoundException('Todo not found');
     }
   }
 
@@ -47,6 +51,9 @@ export class TodosController {
       const todo = await this.todosService.findOne(id);
       res.status(HttpStatus.OK).send({ success: true, message: 'Todo found', data: todo });
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
       throw new NotFoundException('Todo not found');
     }
   }
@@ -57,6 +64,9 @@ export class TodosController {
       await this.todosService.update(id, updateTodoDto);
       res.status(HttpStatus.OK).send({ success: true, message: 'Todo updated' });
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
       throw new NotFoundException('Todo not found');
     }
   }
@@ -67,6 +77,9 @@ export class TodosController {
       await this.todosService.remove(id);
       res.status(HttpStatus.OK).send({ success: true, message: 'Todo deleted' });
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
       throw new NotFoundException('Todo not found');
     }
   }

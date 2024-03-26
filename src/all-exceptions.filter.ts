@@ -18,7 +18,7 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
-        const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+        const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.BAD_REQUEST;
         const message = exception instanceof HttpException ? exception.getResponse() : 'Internal Server Error';
         const errorMessage = typeof message === 'object' && message !== null && 'message' in message ? (message as { message: string })['message'] : message as string;
         const errorResponse: myResponse = {
