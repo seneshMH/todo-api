@@ -14,6 +14,7 @@ import {
   HttpException,
   Query,
   BadRequestException,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -42,7 +43,7 @@ export class TodosController {
   @Get()
   @ApiQuery({ name: 'limit', required: true, type: Number })
   @ApiQuery({ name: 'skip', required: true, type: Number })
-  async findAll(@Res() res: Response, @Query() { limit, skip }) {
+  async findAll(@Res() res: Response, @Query('limit', new DefaultValuePipe(10)) limit: number, @Query('skip', new DefaultValuePipe(0)) skip: number) {
     try {
       const todos = await this.todosService.findAll(limit, skip);
       res.status(HttpStatus.OK).send({ success: true, message: 'Todos found', data: todos });
