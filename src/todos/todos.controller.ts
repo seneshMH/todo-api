@@ -13,21 +13,30 @@ import {
   NotFoundException,
   HttpException,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Response } from 'express';
-import { ApiQuery } from '@nestjs/swagger';
-import { Types } from 'mongoose';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('todos')
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) { }
 
   @Post()
-  create(@Body(ValidationPipe) createTodoDto: CreateTodoDto) {
-    return this.todosService.create(createTodoDto);
+  async create(@Res() res: Response, @Body(ValidationPipe) createTodoDto: CreateTodoDto) {
+    try {
+      const todo = await this.todosService.create(createTodoDto);
+      res.status(HttpStatus.CREATED).send({ success: true, message: 'Todo created', data: todo });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw new HttpException(error.message, error.getStatus());
+      }
+      throw new BadRequestException('Todo creation failed');
+    }
   }
 
   @Get()
