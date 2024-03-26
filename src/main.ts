@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Todo-API')
-    .setDescription('The Todo API description')
+    .setDescription('The Todo API handles the creation, reading, updating, and deletion of todos.')
     .setVersion('1.0')
     .addTag('todos')
     .build();
