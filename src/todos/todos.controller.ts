@@ -3,41 +3,71 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Put,
+  Req,
+  Res,
+  HttpStatus,
+  ValidationPipe,
+  NotFoundException,
+  HttpException,
+  Query,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { Response } from 'express';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('todos')
 export class TodosController {
-  constructor(private readonly todosService: TodosService) {}
+  constructor(private readonly todosService: TodosService) { }
 
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
+  create(@Body(ValidationPipe) createTodoDto: CreateTodoDto) {
     return this.todosService.create(createTodoDto);
   }
 
   @Get()
-  findAll() {
-    return this.todosService.findAll();
+  @ApiQuery({ name: 'limit', required: true, type: Number })
+  @ApiQuery({ name: 'skip', required: true, type: Number })
+  async findAll(@Res() res: Response, @Query() { limit, skip }) {
+    try {
+      const todos = await this.todosService.findAll(limit, skip);
+      res.status(HttpStatus.OK).send({ success: true, message: 'Todos found', data: todos });
+    } catch (error) {
+      throw new NotFoundException('Todos not found');
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todosService.findOne(id);
+  async findOne(@Res() res: Response, @Param('id') id: string) {
+    try {
+      const todo = await this.todosService.findOne(id);
+      res.status(HttpStatus.OK).send({ success: true, message: 'Todo found', data: todo });
+    } catch (error) {
+      throw new NotFoundException('Todo not found');
+    }
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todosService.update(id, updateTodoDto);
+  async update(@Res() res: Response, @Param('id') id: string, @Body(ValidationPipe) updateTodoDto: UpdateTodoDto) {
+    try {
+      await this.todosService.update(id, updateTodoDto);
+      res.status(HttpStatus.OK).send({ success: true, message: 'Todo updated' });
+    } catch (error) {
+      throw new NotFoundException('Todo not found');
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todosService.remove(id);
+  async remove(@Res() res: Response, @Param('id') id: string) {
+    try {
+      await this.todosService.remove(id);
+      res.status(HttpStatus.OK).send({ success: true, message: 'Todo deleted' });
+    } catch (error) {
+      throw new NotFoundException('Todo not found');
+    }
   }
 }

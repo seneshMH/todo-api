@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Todo } from './schema/todo.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class TodosService {
   private logger = new Logger(TodosService.name);
 
-  constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) {}
+  constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) { }
 
   async create(createTodoDto: CreateTodoDto): Promise<Todo> {
     const createdTodo = new this.todoModel(createTodoDto);
@@ -17,23 +17,36 @@ export class TodosService {
     return createdTodo.save();
   }
 
-  async findAll(): Promise<Todo[]> {
+  async findAll(limit: number, skip: number): Promise<Todo[]> {
+    const todos = await this.todoModel.find().limit(limit).skip(skip).exec();
     this.logger.log(`find all todos`);
-    return this.todoModel.find().exec();
+    return todos;
   }
 
   async findOne(id: string): Promise<Todo> {
+    const todo = await this.todoModel.findOne({ _id: id }).exec();
+    this.logger.log(todo);
+    if (!todo) {
+      throw new Error("Todo not found !");
+    }
     this.logger.log(`find todo with id: ${id}`);
-    return this.todoModel.findOne({ _id: id }).exec();
+
+    return todo;
   }
 
   async update(id: string, updateTodoDto: UpdateTodoDto) {
-    this.todoModel.updateOne({ _id: id }, updateTodoDto).exec();
+    const todo = await this.todoModel.updateOne({ _id: id }, updateTodoDto).exec();
+    if (todo.modifiedCount === 0) {
+      throw new Error("Todo not found !");
+    }
     this.logger.log(`Updated todo with id: ${id}`);
   }
 
   async remove(id: string) {
-    this.todoModel.deleteOne({ _id: id }).exec();
+    const todo = await this.todoModel.deleteOne({ _id: id }).exec();
+    if (todo.deletedCount === 0) {
+      throw new Error("Todo not found !");
+    }
     this.logger.log(`delete todo with id: ${id}`);
   }
 }
