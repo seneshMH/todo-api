@@ -11,28 +11,27 @@ export class TodosService {
 
   constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) { }
 
+  //create Todo
   async create(createTodoDto: CreateTodoDto): Promise<Todo> {
-    const createdTodo = new this.todoModel(createTodoDto);
+    const createdTodo = await this.todoModel.create(createTodoDto);
     this.logger.log(`create todo with title: ${createTodoDto.title}`);
-    const todo = await createdTodo.save();
-    if (!todo) {
-      throw new BadRequestException('Todo not created');
-    }
-    return todo;
+    return createdTodo;
   }
 
+  //findall Todo with limit and skip
   async findAll(limit: number, skip: number): Promise<Todo[]> {
-    const todos = await this.todoModel.find().limit(limit).skip(skip).exec();
+    const todos = await this.todoModel.find().limit(limit).skip(skip);
     this.logger.log(`find all todos`);
     return todos;
   }
 
+  //findone Todo by id
   async findOne(id: string): Promise<Todo> {
     const idIsValid = Types.ObjectId.isValid(id);
     if (!idIsValid) {
       throw new BadRequestException("Invalid id !");
     }
-    const todo = await this.todoModel.findOne({ _id: id }).exec();
+    const todo = await this.todoModel.findOne({ _id: id });
     this.logger.log(todo);
     if (!todo) {
       throw new NotFoundException("Todo not found !");
@@ -42,27 +41,26 @@ export class TodosService {
     return todo;
   }
 
+  //update Todo by id
   async update(id: string, updateTodoDto: UpdateTodoDto) {
     const idIsValid = Types.ObjectId.isValid(id);
     if (!idIsValid) {
       throw new BadRequestException("Invalid id !");
     }
-    const todo = await this.todoModel.updateOne({ _id: id }, updateTodoDto).exec();
-    if (todo.modifiedCount === 0) {
-      throw new Error("Todo not found !");
-    }
+
+    await this.todoModel.updateOne({ _id: id }, updateTodoDto);
+
     this.logger.log(`Updated todo with id: ${id}`);
   }
 
+  //remove Todo by id
   async remove(id: string) {
     const idIsValid = Types.ObjectId.isValid(id);
     if (!idIsValid) {
       throw new BadRequestException("Invalid id !");
     }
-    const todo = await this.todoModel.deleteOne({ _id: id }).exec();
-    if (todo.deletedCount === 0) {
-      throw new Error("Todo not found !");
-    }
+    await this.todoModel.deleteOne({ _id: id });
+
     this.logger.log(`delete todo with id: ${id}`);
   }
 }
