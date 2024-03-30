@@ -5,7 +5,6 @@ import { Todo } from './schema/todo.schema';
 import { Model, Types } from 'mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
-import { title } from 'process';
 
 describe('TodosService', () => {
   const mockTodoService = {
