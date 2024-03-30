@@ -14,6 +14,7 @@ import {
   Query,
   BadRequestException,
   DefaultValuePipe,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -35,7 +36,7 @@ export class TodosController {
       if (error instanceof HttpException) {
         throw new HttpException(error.message, error.getStatus());
       }
-      throw new BadRequestException('Todo creation failed');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -50,7 +51,7 @@ export class TodosController {
       if (error instanceof HttpException) {
         throw new HttpException(error.message, error.getStatus());
       }
-      throw new NotFoundException('Todo not found');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -63,7 +64,7 @@ export class TodosController {
       if (error instanceof HttpException) {
         throw new HttpException(error.message, error.getStatus());
       }
-      throw new NotFoundException('Todo not found');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -76,7 +77,7 @@ export class TodosController {
       if (error instanceof HttpException) {
         throw new HttpException(error.message, error.getStatus());
       }
-      throw new NotFoundException('Todo not found');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -89,7 +90,7 @@ export class TodosController {
       if (error instanceof HttpException) {
         throw new HttpException(error.message, error.getStatus());
       }
-      throw new NotFoundException('Todo not found');
+      throw new InternalServerErrorException(error.message);
     }
   }
 }
